@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 
-class Roller(commands.Cog):
+class Ship(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

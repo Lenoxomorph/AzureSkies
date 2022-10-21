@@ -11,12 +11,13 @@ from utils import csvUtils
 from utils.errors import AzureSkiesException, make_error
 
 
+# TODO Get Current Position,
+
 async def get_prefix(the_bot, message):
     if not message.guild:
         return commands.when_mentioned_or(config.DEFAULT_PREFIX)(the_bot, message)
     gp = await the_bot.get_guild_prefix(message.guild)
     return commands.when_mentioned_or(gp)(the_bot, message)
-    pass
 
 
 class AzureSkies(commands.Bot):
