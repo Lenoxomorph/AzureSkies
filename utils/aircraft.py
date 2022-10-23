@@ -36,16 +36,6 @@ class Aircraft:
         self.image = image
 
 
-if __name__ == '__main__':
-    t = TransformRB(Vector((1, 2, 3)))
-    print(f"{t.to_string()}\n")
-    t.update(Vector((0, 1, 0)))
-    print(f"{t.to_string()}\n")
-    t.update(Vector((0, 0, 0)))
-    print(f"{t.to_string()}\n")
-
-
-
 def testing():
     x = 54
     y = 12
@@ -56,3 +46,16 @@ def testing():
     print(f"2 in Z: {r.apply((0, 0, 2))}")
     print()
     print(f"0.5 in XY: {r.apply((0.5, 0.5, 0))}")
+
+
+def testing2():
+    t = TransformRB(Vector((1, 2, 3)))
+    print(f"{t.to_string()}\n")
+    t.update(Vector((0, 1, 0)))
+    print(f"{t.to_string()}\n")
+    t.update(Vector((0, 0, 0)))
+    print(f"{t.to_string()}\n")
+
+
+if __name__ == '__main__':
+    testing()
