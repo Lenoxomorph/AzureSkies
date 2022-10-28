@@ -1,3 +1,4 @@
+from PIL import Image
 from scipy.spatial.transform import Rotation
 
 
@@ -35,6 +36,15 @@ class Aircraft:
         self.transform_rb = transform_rb
         self.image = image
 
+    def draw_on(self, canvas):
+        canvas.paste(self.image, (50, 125), im2)
+
+
+def main():
+    a = Aircraft(Image.open("airship_top.png"))
+    canvas = Image.open("airship_bg.png")
+
+
 
 def testing():
     x = 54
@@ -57,5 +67,17 @@ def testing2():
     print(f"{t.to_string()}\n")
 
 
+def testing3():
+    p = 34
+    pd = 4
+    pdd = 2
+    interval = 0.1
+    for i in range(int(6 / interval)):
+        a = pdd - pd ** 2
+        p += (0.5 * a * (interval ** 2)) + (pd * interval)
+        pd += (a * interval)
+        print(f"p:{p}\npd:{pd}\npdd:{pdd}\n")
+
+
 if __name__ == '__main__':
-    testing()
+    main()
