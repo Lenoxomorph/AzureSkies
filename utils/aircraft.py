@@ -20,10 +20,10 @@ class TransformRB:
     def __init__(self, position=Vector(), rotation=Vector()):
         self.position = position
         self.position_d = Vector()
-        self.rotation = rotation
+        self.rotation = rotation  # Pitch, Yaw, Roll
 
     def update(self, position_dd):
-        position_dd = position_dd.add(Vector((0, -9.8, 0)))
+        position_dd = position_dd.add(Vector((0, -32.174, 0)))
         self.position = self.position.add(self.position_d.multiply(6).add(position_dd.multiply(18)))
         self.position_d = self.position_d.add(position_dd.multiply(6))
 
@@ -37,12 +37,16 @@ class Aircraft:
         self.image = image
 
     def draw_on(self, canvas):
-        canvas.paste(self.image, (50, 125), im2)
+        img = self.image.rotate(-self.transform_rb.rotation.comps[1], Image.BICUBIC, expand=True)
+        canvas.paste(img, ([int(x) for x in self.transform_rb.position.add(Vector((img.width/-2, 0,
+                                                                                   img.height/-2))).comps[::2]]), img)
 
 
 def main():
-    a = Aircraft(Image.open("airship_top.png"))
+    a = Aircraft(Image.open("airship_top.png"), TransformRB(Vector((400, 0, 400)), Vector((0, 45, 0))))
     canvas = Image.open("airship_bg.png")
+    a.draw_on(canvas)
+    canvas.show()
 
 
 
