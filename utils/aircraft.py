@@ -1,6 +1,7 @@
 import math
+import tkinter
 
-from PIL import Image
+from PIL import Image, ImageTk
 from scipy.spatial.transform import Rotation
 
 INTERVAL_RATE = 360
@@ -48,13 +49,15 @@ class TransformRB:
         self.gravity = gravity
         self.position_d = position_d
 
-    def update(self, force=Vector(), relative_force=Vector()):
+    def update(self, force=Vector(), relative_force=Vector(), wind_velocity=Vector(), rotation=Vector()):
         position_dd = force.multiply(1 / self.mass)
         position_dd = position_dd.add(Vector((0, self.gravity, 0)))
         interval = 1 / INTERVAL_RATE
         for i in range(int(6 * INTERVAL_RATE)):
+            self.rotation = self.rotation.add(rotation.multiply(interval))
             a = position_dd.add(relative_force.rotate(self.rotation.comps).multiply(1 / self.mass))
-            a_drag = self.position_d.square().inverse_rotation(self.rotation.comps).dot(self.drag_profiles).rotate(self.rotation.comps).multiply(0.0765 / self.mass)
+            a_drag = self.position_d.add(wind_velocity.negate()).square().inverse_rotation(self.rotation.comps).dot(
+                self.drag_profiles).rotate(self.rotation.comps).multiply(0.0765 / self.mass)
             a = a.add(a_drag.negate())
             print(f"a:{a.comps}")
             self.position = self.position.add(a.multiply(0.5 * (interval ** 2))).add(self.position_d.multiply(interval))
@@ -77,44 +80,33 @@ class Aircraft:
 
 
 def main():
-    a = Aircraft(Image.open("airship_top.png"), TransformRB(Vector((1200, 0, 1200)), Vector((0, 0, 45))))
+    a = Aircraft(Image.open("airship_top.png"),
+                 TransformRB(position=Vector((1200, 0, 1200)), rotation=Vector((0, 0, 45))))
     canvas = Image.open("airship_bg.png")
     a.draw_on(canvas)
     canvas.show()
 
 
-def testing():
-    z = 0
-    x = 0
-    y = 0
-    r = Rotation.from_euler('zxy', (z, x, y), degrees=True)  # Roll, Pitch, Yaw
-    print(f"0.5 in X: {r.apply((0.5, 0, 0))}")
-    print(f"0.5 in Y: {r.apply((0, 0.5, 0))}")
-    print(f"2 in Z: {r.apply((0, 0, 2))}")
-    print()
-    print(f"0.5 in XY: {r.apply((0.5, 0.5, 0))}")
+def canvas_testing():
+    top = tkinter.Tk()
+    a = Aircraft(Image.open("airship_top.png"),
+                 TransformRB(position=Vector((1200, 0, 1200)), rotation=Vector((0, 0, 45))))
+    canvas = tkinter.Canvas(width=12000, height=12000, background="red", highlightthickness=0)
+    bg = Image.open("airship_bg.png")
+    bgi = ImageTk.PhotoImage(bg)
+    canvas.create_image(0, 0, image=bgi, tag="testbg")
+    a_comps = a.transform_rb.position.comps
+    canvas.create_image(0, 0, image=ImageTk.PhotoImage(a.image), tag="testa")
+    canvas.pack()
+    top.mainloop()
 
 
 def testing2():
-    t = TransformRB(drag_profiles=Vector((1, 2, 1)), rotation=Vector((0, 45, 0)))
+    t = TransformRB(drag_profiles=Vector((4, 0.2, 15)), rotation=Vector((0, 80, 0)), mass=2,
+                    position=Vector((0, 20000, 0)))
     print(f"{t.to_string()}\n")
-    t.update(Vector((0, 0, 0)))
+    t.update(Vector((0, 0, 0)), rotation=Vector((360, 360, 360)), wind_velocity=Vector((0, 100, 0)))
     print(f"{t.to_string()}\n")
-    t.update(Vector((0, 0, 0)))
-    print(f"{t.to_string()}\n")
-
-
-def testing3():
-    p = 34
-    pd = 4
-    pdd = 2
-    interval = 1 / 300
-    for i in range(int(36 / interval)):
-        a = pdd - (0.5 * (pd ** 2))
-        print(f"a:{a}")
-        p += (0.5 * a * (interval ** 2)) + (pd * interval)
-        pd += (a * interval)
-        print(f"p:{p}\npd:{pd}\npdd:{pdd}\n")
 
 
 if __name__ == '__main__':
