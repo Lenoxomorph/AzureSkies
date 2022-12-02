@@ -124,7 +124,7 @@ async def on_message(message):
 
 for dir_name in os.listdir('cogs'):
     if dir_name != "__pycache__":
-        bot.load_extension(f'cogs.{dir_name}')
+        await bot.load_extension(f'cogs.{dir_name}')
 
 if __name__ == '__main__':
-    bot.run(config.BOT_TOKEN)
+    bot.start(config.BOT_TOKEN)

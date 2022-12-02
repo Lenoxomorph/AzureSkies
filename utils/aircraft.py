@@ -1,8 +1,10 @@
 import math
-import tkinter
 
-from PIL import Image, ImageTk
+import numpy
+from PIL import Image
 from scipy.spatial.transform import Rotation
+
+from utils.canvas import Canvas
 
 INTERVAL_RATE = 360
 
@@ -15,28 +17,34 @@ class Vector:
             self.comps = xyz
 
     def multiply(self, factor):
-        return Vector([n * factor for n in self.comps])
+        self.comps = [n * factor for n in self.comps]
+        return self
 
     def add(self, vector):
-        return Vector([n1 + n2 for (n1, n2) in zip(self.comps, vector.comps)])
+        self.comps = [n1 + n2 for (n1, n2) in zip(self.comps, vector.comps)]
+        return self
 
     def magnitude(self):
         return math.sqrt(sum([x ** 2 for x in self.comps]))
 
     def square(self):
-        return self.multiply(self.magnitude())
+        self.multiply(self.magnitude())
+        return self
 
     def rotate(self, euler):
-        return Vector(Rotation.from_euler('zxy', euler, degrees=True).apply(self.comps))
+        self.comps = Rotation.from_euler('zxy', euler.comps, degrees=True).apply(self.comps)
+        return self
 
     def inverse_rotation(self, euler):
-        return Vector(Rotation.from_euler('yxz', [-n for n in euler][::-1], degrees=True).apply(self.comps))
+        self.comps = Rotation.from_euler('yxz', [-n for n in euler.comps][::-1], degrees=True).apply(self.comps)
+        return self
 
     def negate(self):
-        return Vector([-n for n in self.comps])
+        return self.multiply(-1)
 
-    def dot(self, vector):
-        return Vector([n1 * n2 for (n1, n2) in zip(self.comps, vector.comps)])
+    def dot(self, v):
+        self.comps = [n1 * n2 for (n1, n2) in zip(self.comps, v.comps)]
+        return self
 
 
 class TransformRB:
@@ -50,64 +58,58 @@ class TransformRB:
         self.position_d = position_d
 
     def update(self, force=Vector(), relative_force=Vector(), wind_velocity=Vector(), rotation=Vector()):
-        position_dd = force.multiply(1 / self.mass)
-        position_dd = position_dd.add(Vector((0, self.gravity, 0)))
+        force.multiply(1 / self.mass).add(Vector((0, self.gravity, 0)))
+        relative_force.multiply(1 / self.mass)
         interval = 1 / INTERVAL_RATE
         for i in range(int(6 * INTERVAL_RATE)):
-            self.rotation = self.rotation.add(rotation.multiply(interval))
-            a = position_dd.add(relative_force.rotate(self.rotation.comps).multiply(1 / self.mass))
-            a_drag = self.position_d.add(wind_velocity.negate()).square().inverse_rotation(self.rotation.comps).dot(
-                self.drag_profiles).rotate(self.rotation.comps).multiply(0.0765 / self.mass)
-            a = a.add(a_drag.negate())
-            print(f"a:{a.comps}")
-            self.position = self.position.add(a.multiply(0.5 * (interval ** 2))).add(self.position_d.multiply(interval))
-            self.position_d = self.position_d.add(a.multiply(interval))
-            print(f"p:{self.position.comps}\npd:{self.position_d.comps}\npdd:{a.comps}\n")
+            self.rotation.add(Vector(rotation).multiply(interval))
+            a_drag = Vector(self.position_d).add(Vector(wind_velocity).negate()).square().inverse_rotation(
+                self.rotation).dot(self.drag_profiles).rotate(self.rotation).multiply(0.0765 / self.mass)
+            a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
+            self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
+            self.position_d.add(Vector(a).multiply(interval))
+            print(self.to_string())
+
+    def coords(self):
+        return [int(x) for x in self.position.comps]
 
     def to_string(self):
         return f"Position: {self.position.comps}\nPosition Prime: {self.position_d.comps}\nRotation: {self.rotation.comps}"
 
 
 class Aircraft:
-    def __init__(self, image, transform_rb=TransformRB()):
+    def __init__(self, length: int, top: Image.Image, side: Image.Image, transform_rb=TransformRB()):
+        self.length = length
+        self.top = top
+        self.side = side
         self.transform_rb = transform_rb
-        self.image = image
 
-    def draw_on(self, canvas):
-        img = self.image.rotate(-self.transform_rb.rotation.comps[2], Image.Resampling.BICUBIC, expand=True)
-        canvas.paste(img, ([int(x) for x in self.transform_rb.position.add(Vector((img.width / -2, 0,
-                                                                                   img.height / -2))).comps[::2]]), img)
-
-
-def main():
-    a = Aircraft(Image.open("airship_top.png"),
-                 TransformRB(position=Vector((1200, 0, 1200)), rotation=Vector((0, 0, 45))))
-    canvas = Image.open("airship_bg.png")
-    a.draw_on(canvas)
-    canvas.show()
-
-
-def canvas_testing():
-    top = tkinter.Tk()
-    a = Aircraft(Image.open("airship_top.png"),
-                 TransformRB(position=Vector((1200, 0, 1200)), rotation=Vector((0, 0, 45))))
-    canvas = tkinter.Canvas(width=12000, height=12000, background="red", highlightthickness=0)
-    bg = Image.open("airship_bg.png")
-    bgi = ImageTk.PhotoImage(bg)
-    canvas.create_image(0, 0, image=bgi, tag="testbg")
-    a_comps = a.transform_rb.position.comps
-    canvas.create_image(0, 0, image=ImageTk.PhotoImage(a.image), tag="testa")
-    canvas.pack()
-    top.mainloop()
+    def draw_on(self, canvas: Canvas):
+        img = self.top if canvas.is_top else self.side
+        ship_length = self.length * canvas.ppf
+        new_dimensions = (int(img.width * ship_length / img.height if canvas.is_top else ship_length),
+                          int(ship_length if canvas.is_top else img.height * ship_length / img.width))
+        img = img.resize(new_dimensions, Image.Resampling.BICUBIC)
+        img = img.rotate((-1 if canvas.is_top else 1)*self.transform_rb.rotation.comps[2 if canvas.is_top else 1], Image.Resampling.BICUBIC,
+                         expand=True)
+        canvas.paste(im=img, box=[int(x) for x in numpy.add((-img.width / 2, img.height / 2), numpy.multiply(
+            self.transform_rb.coords()[:None if canvas.is_top else 0:2 if canvas.is_top else -1],
+            canvas.ppf))], mask=img)  # TODO img =mask
+        # is_top = True; (x, z) (0, 2); False; (z, y) (2, 1)
 
 
-def testing2():
-    t = TransformRB(drag_profiles=Vector((4, 0.2, 15)), rotation=Vector((0, 80, 0)), mass=2,
-                    position=Vector((0, 20000, 0)))
-    print(f"{t.to_string()}\n")
-    t.update(Vector((0, 0, 0)), rotation=Vector((360, 360, 360)), wind_velocity=Vector((0, 100, 0)))
-    print(f"{t.to_string()}\n")
+def canvas_test():
+    a = Aircraft(100, Image.open("airship_top.png"), Image.open("airship_side.png"),
+                 TransformRB(mass=5000, drag_profiles=Vector((50, 50, 50)), position=Vector((100, 100, 100)),
+                             rotation=Vector((0, 45, 0))))
+    c1 = Canvas(Image.open("airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), True)
+    c2 = Canvas(Image.open("airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), False)
+    a.draw_on(c1)
+    a.draw_on(c2)
+    c1.image.show()
+    c2.image.show()
 
 
 if __name__ == '__main__':
-    testing2()
+    print("Start")
+    canvas_test()
