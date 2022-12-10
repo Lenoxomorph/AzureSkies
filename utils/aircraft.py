@@ -94,8 +94,7 @@ class Aircraft:
                          expand=True)
         canvas.paste(im=img, box=[int(x) for x in numpy.add((-img.width / 2, img.height / 2), numpy.multiply(
             self.transform_rb.coords()[:None if canvas.is_top else 0:2 if canvas.is_top else -1],
-            canvas.ppf))], mask=img)  # TODO img =mask
-        # is_top = True; (x, z) (0, 2); False; (z, y) (2, 1)
+            canvas.ppf))], mask=img)
 
 
 def canvas_test():

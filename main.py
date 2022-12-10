@@ -1,3 +1,4 @@
+import asyncio
 import os
 import traceback
 
@@ -32,6 +33,7 @@ class AzureSkies(commands.Bot):
         self.prefixes = dict()
 
     async def get_guild_prefix(self, guild: discord.Guild) -> str:
+        print("here!")
         guild_id = str(guild.id)
         if guild_id in self.prefixes:
             return self.prefixes.get(guild_id, config.DEFAULT_PREFIX)
@@ -42,6 +44,7 @@ class AzureSkies(commands.Bot):
         else:
             gp = config.DEFAULT_PREFIX
         self.prefixes[guild_id] = gp
+        print(gp)
         return gp
 
     async def close(self):
@@ -51,21 +54,21 @@ class AzureSkies(commands.Bot):
 desc = (
     "A bot for helping the players and GM of Azuridrian"
 )
-
-intents = discord.Intents(
-    guilds=True,
-    members=True,
-    messages=True,
-    reactions=True,
-    bans=False,
-    emojis=False,
-    integrations=False,
-    webhooks=False,
-    invites=False,
-    voice_states=False,
-    presences=False,
-    typing=False,
-)  # https://discord.com/developers/docs/topics/gateway#gateway-intents
+intents = discord.Intents.all()
+# intents = discord.Intents(
+#     guilds=True,
+#     members=True,
+#     messages=True,
+#     reactions=True,
+#     bans=False,
+#     emojis=False,
+#     integrations=False,
+#     webhooks=False,
+#     invites=False,
+#     voice_states=False,
+#     presences=False,
+#     typing=False,
+# )  # https://discord.com/developers/docs/topics/gateway#gateway-intents
 bot = AzureSkies(
     prefix=get_prefix,
     description=desc,
@@ -111,20 +114,32 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_message(message):
-    if message.author.bot:
-        return
+    print(message)
+    print(message.content)
+    await bot.process_commands(message)
+    # if message.author.bot:
+    #     return
+    #
+    # ctx = await bot.get_context(message)
+    #
+    # print(ctx.message.content)
+    #
+    # await bot.invoke(ctx)
 
-    ctx = await bot.get_context(message)
+    # if ctx.valid:
+    #     print("test3")
+    #     await bot.invoke(ctx)
+    # elif ctx.invoked_with:
+    #     pass  # TODO: Add Aliases
 
-    if ctx.valid:
-        await bot.invoke(ctx)
-    elif ctx.invoked_with:
-        pass  # TODO: Add Aliases
 
+async def main():
+    async with bot:
+        for dir_name in os.listdir('cogs'):
+            if dir_name != "__pycache__":
+                await bot.load_extension(f'cogs.{dir_name}')
+        await bot.start(config.BOT_TOKEN)
 
-for dir_name in os.listdir('cogs'):
-    if dir_name != "__pycache__":
-        await bot.load_extension(f'cogs.{dir_name}')
 
 if __name__ == '__main__':
-    bot.start(config.BOT_TOKEN)
+    asyncio.run(main())
