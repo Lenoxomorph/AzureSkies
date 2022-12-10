@@ -98,11 +98,11 @@ class Aircraft:
 
 
 def canvas_test():
-    a = Aircraft(100, Image.open("airship_top.png"), Image.open("airship_side.png"),
+    a = Aircraft(100, Image.open("../db/images/airship_top.png"), Image.open("../db/images/airship_side.png"),
                  TransformRB(mass=5000, drag_profiles=Vector((50, 50, 50)), position=Vector((100, 100, 100)),
                              rotation=Vector((0, 45, 0))))
-    c1 = Canvas(Image.open("airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), True)
-    c2 = Canvas(Image.open("airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), False)
+    c1 = Canvas(Image.open("../db/images/airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), is_top=True)
+    c2 = Canvas(Image.open("../db/images/airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), is_top=False)
     a.draw_on(c1)
     a.draw_on(c2)
     c1.image.show()

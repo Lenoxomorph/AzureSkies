@@ -114,23 +114,15 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_message(message):
-    print(message)
-    print(message.content)
-    await bot.process_commands(message)
-    # if message.author.bot:
-    #     return
-    #
-    # ctx = await bot.get_context(message)
-    #
-    # print(ctx.message.content)
-    #
-    # await bot.invoke(ctx)
+    if message.author.bot:
+        return
 
-    # if ctx.valid:
-    #     print("test3")
-    #     await bot.invoke(ctx)
-    # elif ctx.invoked_with:
-    #     pass  # TODO: Add Aliases
+    ctx = await bot.get_context(message)
+
+    if ctx.valid:
+        await bot.process_commands(message)
+    elif ctx.invoked_with:
+        pass  # TODO: Add Aliases
 
 
 async def main():
