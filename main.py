@@ -33,7 +33,6 @@ class AzureSkies(commands.Bot):
         self.prefixes = dict()
 
     async def get_guild_prefix(self, guild: discord.Guild) -> str:
-        print("here!")
         guild_id = str(guild.id)
         if guild_id in self.prefixes:
             return self.prefixes.get(guild_id, config.DEFAULT_PREFIX)
@@ -44,7 +43,6 @@ class AzureSkies(commands.Bot):
         else:
             gp = config.DEFAULT_PREFIX
         self.prefixes[guild_id] = gp
-        print(gp)
         return gp
 
     async def close(self):
@@ -55,20 +53,7 @@ desc = (
     "A bot for helping the players and GM of Azuridrian"
 )
 intents = discord.Intents.all()
-# intents = discord.Intents(
-#     guilds=True,
-#     members=True,
-#     messages=True,
-#     reactions=True,
-#     bans=False,
-#     emojis=False,
-#     integrations=False,
-#     webhooks=False,
-#     invites=False,
-#     voice_states=False,
-#     presences=False,
-#     typing=False,
-# )  # https://discord.com/developers/docs/topics/gateway#gateway-intents
+
 bot = AzureSkies(
     prefix=get_prefix,
     description=desc,
@@ -82,7 +67,7 @@ bot = AzureSkies(
 @bot.event
 async def on_ready():
     print(f"Logged in as - \"{bot.user.name}\" - {bot.user.id}")
-    print(f'AzureSkies has awoken in {len(bot.guilds)} servers')
+    print(f'AzureSkies has risen in {len(bot.guilds)} servers')
 
 
 @bot.event
@@ -110,19 +95,6 @@ async def on_command_error(ctx, error):
         make_error(f"UNEXPECTED ERROR!", True)  # TODO Add unexpected error text
     )
     print(traceback.print_exception(type(error), error, error.__traceback__))
-
-
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-
-    ctx = await bot.get_context(message)
-
-    if ctx.valid:
-        await bot.process_commands(message)
-    elif ctx.invoked_with:
-        pass  # TODO: Add Aliases
 
 
 async def main():

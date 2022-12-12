@@ -13,4 +13,3 @@ class Rotator(PropABC):
     def __init__(self, vector):
         super().__init__()
         self.vector = vector
-
