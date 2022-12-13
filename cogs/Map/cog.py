@@ -19,7 +19,7 @@ class Ship(commands.Cog):
         embeds = (discord.Embed().set_image(url="attachment://map0.png"),
                   discord.Embed().set_image(url="attachment://map1.png"))
 
-        message = await ctx.send(embeds=embeds, view=MainMenu())
+        message = await ctx.send(embeds=embeds)
 
         maps = Maps(message.id)
 
@@ -27,10 +27,13 @@ class Ship(commands.Cog):
 
         maps.save()
 
+        await message.edit(view=MainMenu())
+
+
     # @commands.Cog.listener()
     # async def on_interaction(self, interaction):
-    #     print(interaction)
-    #     await interaction.response.send_modal(Questionnaire())
+    #     await interaction.response.edit_message(view=TestMenu())
+    #     await interaction.channel.send_message(content="Reloaded Menus", ephemeral=True, delete_after=5)
 
     # @commands.command(name="ree")
     # async def ree(self, ctx):
