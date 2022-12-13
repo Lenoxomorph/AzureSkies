@@ -73,16 +73,7 @@ class TransformRB:
     def to_string(self):
         return f"Position: {self.position.comps}\nPosition Prime: {self.position_d.comps}\nRotation: {self.rotation.comps}"
 
-# class Canvas:
-#     def __init__(self, image: Image.Image, is_top=True, ppf=5):
-#         self.image = image
-#         self.is_top = is_top
-#         self.ppf = ppf
-#
-#     def paste(self, **kwargs):
-#         kwargs["box"][1] = self.image.height - kwargs["box"][1]
-#         self.image.paste(**kwargs)
-#
+
 # class Aircraft:
 #     def __init__(self, length: int, top: Image.Image, side: Image.Image, transform_rb=TransformRB()):
 #         self.length = length
@@ -101,22 +92,3 @@ class TransformRB:
 #         canvas.paste(im=img, box=[int(x) for x in numpy.add((-img.width / 2, img.height / 2), numpy.multiply(
 #             self.transform_rb.coords()[:None if canvas.is_top else 0:2 if canvas.is_top else -1],
 #             canvas.ppf))], mask=img)
-#
-#
-#
-#
-# def canvas_test():
-#     a = Aircraft(100, Image.open("../db/images/airship_top.png"), Image.open("../db/images/airship_side.png"),
-#                  TransformRB(mass=5000, drag_profiles=Vector((50, 50, 50)), position=Vector((150, 100, 50)),
-#                              rotation=Vector((0, 45, 0))))
-#     c1 = Canvas(Image.open("../db/images/old bgs/airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), is_top=True)
-#     c2 = Canvas(Image.open("../db/images/old bgs/airship_bg2.png").rotate(90, Image.Resampling.BICUBIC, expand=True), is_top=False)
-#     a.draw_on(c1)
-#     a.draw_on(c2)
-#     c1.image.show()
-#     c2.image.show()
-#
-#
-# if __name__ == '__main__':
-#     print("Start")
-#     canvas_test()
