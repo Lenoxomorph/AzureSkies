@@ -28,11 +28,11 @@ class Vector:
         return self
 
     def rotate(self, euler):
-        self.comps = Rotation.from_euler('zxy', euler.comps, degrees=True).apply(self.comps)
+        self.comps = Rotation.from_euler('xzy', euler.comps, degrees=True).apply(self.comps)  # zxy
         return self
 
     def inverse_rotation(self, euler):
-        self.comps = Rotation.from_euler('yxz', [-n for n in euler.comps][::-1], degrees=True).apply(self.comps)
+        self.comps = Rotation.from_euler('yzx', [-n for n in euler.comps][::-1], degrees=True).apply(self.comps)
         return self
 
     def negate(self):
@@ -49,7 +49,7 @@ class TransformRB:
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
-        self.rotation = rotation  # Roll, Pitch, Yaw    Roll, Yaw, Pitch
+        self.rotation = rotation  # Roll, Pitch, Yaw
         self.gravity = gravity
         self.position_d = position_d
 
@@ -68,5 +68,19 @@ class TransformRB:
 
 
 if __name__ == '__main__':
-    v = Vector((0, 1, 0))
-    print(Vector(v).rotate(Vector((33, 45, 22))).comps)
+    z = 1
+    y = 0
+    x = 0
+    v = Vector((x, y, z))
+    pitch = -24.75
+    yaw = 0
+    roll = 0
+    print(Vector(v).rotate(Vector((roll, pitch, yaw))).comps)
+
+# Pitch: 22` Yaw: 42` Roll: 33`
+
+# Unity x y z
+# Miney z y x
+
+# Unity -Pitch, Yaw, -Roll
+# Miney Roll, Pitch, Yaw
