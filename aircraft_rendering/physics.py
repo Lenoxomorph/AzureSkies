@@ -49,7 +49,7 @@ class TransformRB:
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
-        self.rotation = rotation  # Roll, Pitch, Yaw
+        self.rotation = rotation  # Roll, Pitch, Yaw    Roll, Yaw, Pitch
         self.gravity = gravity
         self.position_d = position_d
 
@@ -64,22 +64,9 @@ class TransformRB:
             a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
             self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
             self.position_d.add(Vector(a).multiply(interval))
+            print(self.rotation.comps)
 
-# class Aircraft:
-#     def __init__(self, length: int, top: Image.Image, side: Image.Image, transform_rb=TransformRB()):
-#         self.length = length
-#         self.top = top
-#         self.side = side
-#         self.transform_rb = transform_rb
-#
-#     def draw_on(self, canvas: Canvas):
-#         img = self.top if canvas.is_top else self.side
-#         ship_length = self.length * canvas.ppf
-#         new_dimensions = (int(img.width * ship_length / img.height if canvas.is_top else ship_length),
-#                           int(ship_length if canvas.is_top else img.height * ship_length / img.width))
-#         img = img.resize(new_dimensions, Image.Resampling.BICUBIC)
-#         img = img.rotate((-1 if canvas.is_top else 1)*self.transform_rb.rotation.comps[2 if canvas.is_top else 1], Image.Resampling.BICUBIC,
-#                          expand=True)
-#         canvas.paste(im=img, box=[int(x) for x in numpy.add((-img.width / 2, img.height / 2), numpy.multiply(
-#             self.transform_rb.coords()[:None if canvas.is_top else 0:2 if canvas.is_top else -1],
-#             canvas.ppf))], mask=img)
+
+if __name__ == '__main__':
+    v = Vector((0, 1, 0))
+    print(Vector(v).rotate(Vector((33, 45, 22))).comps)
