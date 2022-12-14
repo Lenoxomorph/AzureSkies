@@ -1,9 +1,10 @@
 import pickle
 from io import BytesIO
+from typing import Tuple
 
 import discord
-from PIL import Image
-from typing import Tuple
+
+from aircraft.visuals import ActiveImage
 
 
 class Maps:
@@ -40,17 +41,3 @@ class Canvas:
 
     def draw_arrow(self, start: tuple, end: tuple, rgb: tuple):
         pass
-
-
-class ActiveImage:
-    def __init__(self, path: str):
-        self.path = path
-        self.cached_image = None
-
-    def image(self):
-        if self.cached_image is None:
-            self.cached_image = Image.open(self.path)
-        return self.cached_image
-
-    def clear_cache(self):
-        self.cached_image = None

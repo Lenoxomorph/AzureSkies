@@ -1,7 +1,5 @@
 import math
 
-import numpy
-from PIL import Image
 from scipy.spatial.transform import Rotation
 
 INTERVAL_RATE = 360
@@ -66,13 +64,6 @@ class TransformRB:
             a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
             self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
             self.position_d.add(Vector(a).multiply(interval))
-
-    def coords(self):
-        return [int(x) for x in self.position.comps]
-
-    def to_string(self):
-        return f"Position: {self.position.comps}\nPosition Prime: {self.position_d.comps}\nRotation: {self.rotation.comps}"
-
 
 # class Aircraft:
 #     def __init__(self, length: int, top: Image.Image, side: Image.Image, transform_rb=TransformRB()):
