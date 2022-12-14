@@ -30,8 +30,8 @@ class Ship(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction):
-        await interaction.response.edit_message(view=MainMenu())
-        # await interaction.response.send_modal(Questionnaire())
+        await interaction.message.edit(view=MainMenu())
+        await interaction.response.send_message(content="Reloaded Menu", ephemeral=True, delete_after=5)
 
     # @commands.command(name="ree")
     # async def ree(self, ctx):
