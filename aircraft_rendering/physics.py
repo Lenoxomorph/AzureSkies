@@ -44,7 +44,7 @@ class Vector:
 
 
 class TransformRB:
-    def __init__(self, mass=1, drag_profiles=Vector((1, 1, 1)), position=Vector(), rotation=Vector(), gravity=-32,
+    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector(), rotation=Vector(), gravity=-32,
                  position_d=Vector()):
         self.mass = mass
         self.drag_profiles = drag_profiles
@@ -64,23 +64,3 @@ class TransformRB:
             a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
             self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
             self.position_d.add(Vector(a).multiply(interval))
-            print(self.rotation.comps)
-
-
-if __name__ == '__main__':
-    z = 1
-    y = 0
-    x = 0
-    v = Vector((x, y, z))
-    pitch = -24.75
-    yaw = 0
-    roll = 0
-    print(Vector(v).rotate(Vector((roll, pitch, yaw))).comps)
-
-# Pitch: 22` Yaw: 42` Roll: 33`
-
-# Unity x y z
-# Miney z y x
-
-# Unity -Pitch, Yaw, -Roll
-# Miney Roll, Pitch, Yaw

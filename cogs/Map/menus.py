@@ -25,5 +25,13 @@ class MainMenu(discord.ui.View):
     @discord.ui.button(label="Test", style=discord.ButtonStyle.grey)
     async def test_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         maps = open_maps(interaction)
-        print(maps.canvases[0].get_aircraft_coords)
+        maps.temp()
+        maps.save()
+        await update_map(interaction, maps)
+
+    @discord.ui.button(label="Zoom", style=discord.ButtonStyle.grey)
+    async def zoom_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        maps = open_maps(interaction)
+        maps.zoom()
+        maps.save()
         await update_map(interaction, maps)

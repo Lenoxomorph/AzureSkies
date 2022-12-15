@@ -1,30 +1,38 @@
+import math
 import pickle
 from io import BytesIO
-from typing import Tuple
+from typing import Tuple, List
 
 import discord
+import numpy
+from PIL import Image
 
+from aircraft_rendering.aircraft import Aircraft
+from aircraft_rendering.physics import Vector
 from aircraft_rendering.visuals import ActiveImage
-
-
-def top_aircraft_handler():
-    pass
-
-
-def side_aircraft_handler():
-    pass
 
 
 class Maps:
     def __init__(self, message_id, **kwargs):
         self.message_id = message_id
-        self.canvases = [Canvas(f"./db/images/airship_bg_{x}.png", function, **kwargs)
-                         for x, function in enumerate([top_aircraft_handler, side_aircraft_handler])]
-        self.aircrafts = None  # List[Aircraft]
+        self.canvases = [Canvas(f"./db/images/airship_bg_{x}.png", bool(x), **kwargs) for x in range(2)]
+        self.aircrafts = [Aircraft(rotation=Vector((0, 45, 135)))]
+
+    # def temp(self):
+    #     for aircraft in self.aircrafts:
+    #         aircraft.transform_rb.update()
+    #
+    # def zoom(self):
+    #     for canvas in self.canvases:
+    #         canvas.pxl_per_ft /= 1.5
+    #         print(canvas.pxl_per_ft)
 
     def save(self):
         for canvas in self.canvases:
             canvas.background.clear_cache()
+        for aircraft in self.aircrafts:
+            aircraft.top_image.clear_cache()
+            aircraft.side_image.clear_cache()
         with open(f"./db/maps/map_{self.message_id}.pckl", 'wb') as f:
             pickle.dump(self, f)
 
@@ -39,17 +47,55 @@ class Maps:
 
 
 class Canvas:
-    def __init__(self, path: str, get_aircraft_coords, pxl_per_ft: float = 5, camera_coords: Tuple[float] = (0, 0),
+    def __init__(self, path: str, is_side: bool, pxl_per_ft: float = math.e, camera_coords: Tuple[float] = (0, 0),
                  angle_from_north: float = 0):
-        print(get_aircraft_coords)
         self.background = ActiveImage(path)
-        self.get_aircraft_coords = get_aircraft_coords
+        self.is_side = is_side
         self.pxl_per_ft = pxl_per_ft
         self.camera_coords = camera_coords
         self.angle_from_north = angle_from_north
 
-    def render(self, airships):
-        return self.background.image()
+    def render(self, aircrafts: List[Aircraft]):
+        canvas_image = self.background.image().copy()
+
+        for aircraft in sorted(aircrafts, key=lambda a: a.transform_rb.position.comps[self.is_side + 1]):
+            if self.is_side:
+                aircraft_image = aircraft.side_image.image().copy()
+                if 90 < aircraft.transform_rb.rotation.comps[2] % 360 < 270:
+                    aircraft_image = aircraft_image.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+
+                coords = aircraft.transform_rb.position.comps[:2]
+                angle = aircraft.transform_rb.rotation.comps[1]
+            else:
+                aircraft_image = aircraft.top_image.image().copy()
+
+                coords = aircraft.transform_rb.position.comps[::2]
+                angle = -aircraft.transform_rb.rotation.comps[2]
+
+            print(coords)
+
+            coords = list(coords)
+            coords[1] *= -1
+
+            new_width = aircraft.ship_length * self.pxl_per_ft
+            new_height = aircraft_image.height * new_width / aircraft_image.width
+            # TODO Camera coords use lmao
+            aircraft_image = aircraft_image.resize((int(new_width), int(new_height)), Image.Resampling.BICUBIC)
+            aircraft_image = aircraft_image.rotate(angle, Image.Resampling.BICUBIC, expand=True)
+
+            coords = numpy.multiply(coords, self.pxl_per_ft)
+            coords = numpy.add(coords, (canvas_image.width / 2, canvas_image.height / 2))
+            coords = numpy.add(coords, self.camera_coords)
+
+            coords = numpy.add(coords, (-aircraft_image.width / 2, -aircraft_image.height / 2))
+            canvas_image.paste(im=aircraft_image, box=[int(x) for x in coords], mask=aircraft_image)
+        return canvas_image
+
+    # Flip code - 90 < angle % 360 < 270
+    # Sort by key code - sorted(uts, key=lambda x: x.value)
+    # Flip image code - .transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+
+    # Int code - [int(x) for x in coords]
 
     def draw_component(self, image: ActiveImage, height: float, coords: Tuple[float] = (0, 0), rotation: float = 0):
         pass
