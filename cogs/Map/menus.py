@@ -22,13 +22,6 @@ class MainMenu(discord.ui.View):
     async def reload_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await update_map(interaction)
 
-    @discord.ui.button(label="Test", style=discord.ButtonStyle.grey)
-    async def test_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        maps = open_maps(interaction)
-        maps.temp()
-        maps.save()
-        await update_map(interaction, maps)
-
     @discord.ui.button(label="Zoom", style=discord.ButtonStyle.grey)
     async def zoom_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         maps = open_maps(interaction)

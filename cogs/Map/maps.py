@@ -18,14 +18,13 @@ class Maps:
         self.canvases = [Canvas(f"./db/images/airship_bg_{x}.png", bool(x), **kwargs) for x in range(2)]
         self.aircrafts = [Aircraft(rotation=Vector((0, 45, 135)))]
 
-    # def temp(self):
-    #     for aircraft in self.aircrafts:
-    #         aircraft.transform_rb.update()
-    #
-    # def zoom(self):
-    #     for canvas in self.canvases:
-    #         canvas.pxl_per_ft /= 1.5
-    #         print(canvas.pxl_per_ft)
+    def update(self):
+        for aircraft in self.aircrafts:
+            aircraft.transform_rb.update()
+
+    def zoom(self, is_zoom_in):
+        for canvas in self.canvases:
+            canvas.pxl_per_ft *= 1.25 if is_zoom_in else 0.8
 
     def save(self):
         for canvas in self.canvases:
@@ -71,8 +70,6 @@ class Canvas:
 
                 coords = aircraft.transform_rb.position.comps[::2]
                 angle = -aircraft.transform_rb.rotation.comps[2]
-
-            print(coords)
 
             coords = list(coords)
             coords[1] *= -1
