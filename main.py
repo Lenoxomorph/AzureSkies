@@ -1,20 +1,20 @@
 import asyncio
 import os
-import traceback
 
-import d20
 import discord
 from discord.ext import commands
-from discord.ext.commands import CommandInvokeError
 
+from cogs.Map.menus import MainMenu, CanvasMenu, ZoomMenu, PanMenu
 from utils import config
 from utils import csvUtils
-from utils.errors import AzureSkiesException, make_error
-
+from utils.errors import on_error
 
 # TODO Get Current Position,
 
 # TODO Weather, Altitude, Heading, Travel Speeds,
+
+menus = [MainMenu, CanvasMenu, ZoomMenu, PanMenu]
+
 
 async def get_prefix(the_bot, message):
     if not message.guild:
@@ -31,6 +31,10 @@ class AzureSkies(commands.Bot):
             **options,
         )
         self.prefixes = dict()
+
+    async def setup_hook(self) -> None:
+        for menu in menus:
+            self.add_view(menu())
 
     async def get_guild_prefix(self, guild: discord.Guild) -> str:
         guild_id = str(guild.id)
@@ -77,24 +81,7 @@ async def on_resumed():
 
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        return
-    elif isinstance(error, AzureSkiesException):
-        return await ctx.send(make_error(error))
-    elif isinstance(error, (commands.UserInputError, commands.NoPrivateMessage, ValueError)):
-        return await ctx.send(make_error(f"COMMAND ERROR: {str(error)}\n"
-                                         f"Use \"{ctx.prefix}help " + ctx.command.qualified_name + "\" for help."))
-    elif isinstance(error, CommandInvokeError):
-        original = error.original
-        if isinstance(original, d20.RollError):
-            return await ctx.send(make_error(f"ROLL ERROR - {original}"))
-        elif isinstance(original, AzureSkiesException):
-            return await ctx.send(make_error(original))
-
-    await ctx.send(
-        make_error(f"UNEXPECTED ERROR!", True)  # TODO Add unexpected error text
-    )
-    print(traceback.print_exception(type(error), error, error.__traceback__))
+    await on_error(ctx, error)
 
 
 async def main():

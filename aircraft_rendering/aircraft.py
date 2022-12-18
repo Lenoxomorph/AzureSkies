@@ -1,5 +1,3 @@
-from PIL import Image
-
 from .physics import TransformRB
 from .visuals import ActiveImage
 

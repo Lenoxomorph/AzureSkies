@@ -24,8 +24,3 @@ class Ship(commands.Cog):
         maps.save()
 
         await message.edit(view=MainMenu())
-
-    @commands.Cog.listener()
-    async def on_interaction(self, interaction):
-        await interaction.message.edit(view=MainMenu())
-        await interaction.response.send_message(content="Reloaded Menu", ephemeral=True, delete_after=5)

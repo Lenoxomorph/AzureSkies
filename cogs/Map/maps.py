@@ -16,7 +16,7 @@ class Maps:
     def __init__(self, message_id, **kwargs):
         self.message_id = message_id
         self.canvases = [Canvas(f"./db/images/airship_bg_{x}.png", bool(x), **kwargs) for x in range(2)]
-        self.aircrafts = [Aircraft(rotation=Vector((0, 45, 135)))]
+        self.aircrafts = [Aircraft()]
 
     def update(self):
         for aircraft in self.aircrafts:
@@ -46,7 +46,7 @@ class Maps:
 
 
 class Canvas:
-    def __init__(self, path: str, is_side: bool, pxl_per_ft: float = math.e, camera_coords: Tuple[float] = (0, 0),
+    def __init__(self, path: str, is_side: bool, pxl_per_ft: float = 1.6, camera_coords: Tuple[float] = (0, 0),
                  angle_from_north: float = 0):
         self.background = ActiveImage(path)
         self.is_side = is_side
@@ -71,18 +71,19 @@ class Canvas:
                 coords = aircraft.transform_rb.position.comps[::2]
                 angle = -aircraft.transform_rb.rotation.comps[2]
 
+            coords = numpy.add(coords, self.camera_coords)
+
             coords = list(coords)
             coords[1] *= -1
 
             new_width = aircraft.ship_length * self.pxl_per_ft
             new_height = aircraft_image.height * new_width / aircraft_image.width
-            # TODO Camera coords use lmao
+
             aircraft_image = aircraft_image.resize((int(new_width), int(new_height)), Image.Resampling.BICUBIC)
             aircraft_image = aircraft_image.rotate(angle, Image.Resampling.BICUBIC, expand=True)
 
             coords = numpy.multiply(coords, self.pxl_per_ft)
             coords = numpy.add(coords, (canvas_image.width / 2, canvas_image.height / 2))
-            coords = numpy.add(coords, self.camera_coords)
 
             coords = numpy.add(coords, (-aircraft_image.width / 2, -aircraft_image.height / 2))
             canvas_image.paste(im=aircraft_image, box=[int(x) for x in coords], mask=aircraft_image)
