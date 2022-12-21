@@ -91,7 +91,7 @@ class ZoomMenu(ChildMenu):
     @staticmethod
     async def zoom(interaction: discord.Interaction, is_zoom_in: bool):
         maps = open_maps(interaction)
-        maps.zoom(is_zoom_in)
+        maps.pxl_per_ft *= 1.25 if is_zoom_in else 0.8
         maps.save()
         await update_map(interaction, maps)
 
@@ -100,20 +100,32 @@ class PanMenu(ChildMenu):
     def __init__(self):
         super().__init__(CanvasMenu)
 
-    # @discord.ui.button(label="Zoom In", style=discord.ButtonStyle.grey, custom_id='zoom_in')
-    # async def zoom_in_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-    #     await self.zoom(interaction, True)
-    #
-    # @discord.ui.button(label="Zoom Out", style=discord.ButtonStyle.grey, custom_id='zoom_out')
-    # async def zoom_out_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-    #     await self.zoom(interaction, False)
-    #
-    # @staticmethod
-    # async def zoom(interaction: discord.Interaction, is_zoom_in: bool):
-    #     maps = open_maps(interaction)
-    #     maps.zoom(is_zoom_in)
-    #     maps.save()
-    #     await update_map(interaction, maps)
+    @discord.ui.button(label="Pan Down", style=discord.ButtonStyle.grey, custom_id='pan_down', emoji="⬇")
+    async def pan_down_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.pan(interaction, True, False)
+
+    @discord.ui.button(label="Pan Up", style=discord.ButtonStyle.grey, custom_id='pan_up', emoji="⬆")
+    async def pan_up_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.pan(interaction, True, True)
+
+    @discord.ui.button(label="Pan Left", style=discord.ButtonStyle.grey, custom_id='pan_left', emoji="⬅")
+    async def pan_left_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.pan(interaction, False, False)
+
+    @discord.ui.button(label="Pan Right", style=discord.ButtonStyle.grey, custom_id='pan_right', emoji="➡")
+    async def pan_right_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.pan(interaction, False, True)
+
+    @staticmethod
+    async def pan(interaction: discord.Interaction, is_vertical: bool, is_up_right: bool):
+        maps = open_maps(interaction)
+
+        temp_coords = list(maps.camera_coords)
+        temp_coords[is_vertical] += (is_up_right*2-1)*(180/maps.pxl_per_ft)
+
+        maps.camera_coords = tuple(temp_coords)
+        maps.save()
+        await update_map(interaction, maps)
 
 
 class LockedMenu(ChildMenu):
