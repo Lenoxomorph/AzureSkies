@@ -13,9 +13,10 @@ def open_maps(interaction) -> Maps:
 
 
 async def update_map(interaction: discord.Interaction, maps=None):
+    await interaction.response.defer(thinking=False)
     if maps is None:
         maps = open_maps(interaction)
-    await interaction.response.edit_message(attachments=maps.render_files())
+    await interaction.followup.edit_message(interaction.message.id, attachments=maps.render_files())
 
 
 class Menu(discord.ui.View):
