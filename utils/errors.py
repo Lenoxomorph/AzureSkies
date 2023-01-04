@@ -38,3 +38,8 @@ class AzureSkiesException(Exception):
 class PermissionsError(Exception):
     def __init__(self, msg):
         super().__init__(msg)
+
+
+class ImpossibleShotError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)

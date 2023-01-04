@@ -5,7 +5,19 @@ from scipy.spatial.transform import Rotation
 INTERVAL_RATE = 360
 
 
+class AxisGrabber:
+    def __init__(self, axis_num: int):
+        self.axis_num = axis_num
+
+    def __get__(self, obj, obj_type=None):
+        return obj.comps[self.axis_num]
+
+
 class Vector:
+    x = AxisGrabber(0)
+    y = AxisGrabber(1)
+    z = AxisGrabber(2)
+
     def __init__(self, xyz=(0.0, 0.0, 0.0)):
         if isinstance(xyz, Vector):
             self.comps = xyz.comps
