@@ -1,9 +1,10 @@
 import copy
 import math
 
-from physics import TransformRB, Vector
 from utils.errors import ImpossibleShotError
-from visuals import ActiveImage
+
+from .physics import TransformRB, Vector
+from .visuals import ActiveImage
 
 
 class Aircraft:
