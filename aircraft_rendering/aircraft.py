@@ -1,10 +1,8 @@
-import copy
 import math
 
+from physics import TransformRB, Vector
 from utils.errors import ImpossibleShotError
-
-from .physics import TransformRB, Vector
-from .visuals import ActiveImage
+from visuals import ActiveImage
 
 
 class Aircraft:
@@ -35,7 +33,7 @@ class Rotator(PropABC):
 def angle_for_shot(g, v, yx):
     inner_sqrt = math.pow(v, 4) - g * (g * yx[1] * yx[1] + 2 * yx[0] * v * v)
     if inner_sqrt < 0:
-        raise ImpossibleShotError("Impossible Shot")
+        raise ImpossibleShotError("Unknown Reason - Impossible Shot")
     return math.atan2(v * v - math.sqrt(inner_sqrt), g * yx[1])
 
 
@@ -45,23 +43,21 @@ def to_plane(vector: Vector) -> (float, float):
     return y, x
 
 
-def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector):
+def angle_distance(a1, a2):
+    return (a2 - a1 - math.pi) % (2 * math.pi) - math.pi
+
+
+def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector, azimuth_min_max, elevation_min_max):
     shot_vector.rotate(a.transform_rb.rotation)
 
     relative_position = Vector(b.transform_rb.position).add(Vector(a.transform_rb.position).negate())
     relative_velocity = Vector(b.transform_rb.position_d).add(Vector(a.transform_rb.position_d).negate())
 
-    initial_shot_vertical_angle = math.atan2(*to_plane(shot_vector))
     initial_shot_horizontal_angle = math.atan2(shot_vector.z, shot_vector.x)
+    initial_shot_vertical_angle = math.atan2(*to_plane(shot_vector))
 
     g = -a.transform_rb.gravity
     v = shot_vector.magnitude()
-
-    yx = to_plane(relative_position)
-    try:
-        no_velocity_vertical_angle = angle_for_shot(g, v, yx)
-    except ImpossibleShotError:
-        no_velocity_vertical_angle = None
 
     current_position = Vector(relative_position)
 
@@ -84,24 +80,47 @@ def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector):
             t = 0.00001
         temp_position = Vector(relative_position).add(Vector(relative_velocity).multiply(t))
 
-        if Vector(current_position).add(Vector(temp_position).negate()).magnitude() < 0.1:
+        if Vector(current_position).add(Vector(temp_position).negate()).magnitude() < 0.01:
+            current_position = temp_position
             break
         current_position = temp_position
 
-    print(temp_position.comps)
-    print(t)
+    s = b.ship_length
 
-    # size_bonus = 2 * math.log2(2 * math.atan2(s, 2 * math.sqrt(x * x + y * y)) / math.pi) + 12
-    #
-    # base_ange = math.atan2(y, x)
-    # shot_angle = math.atan2(v * v - math.sqrt(math.pow(v, 4) - g * (g * x * x + 2 * y * v * v)), g * x)
-    #
-    # grav_bonus = - math.pow(24 * (shot_angle - base_ange) / math.pi, 2)
-    #
-    # bonus = size_bonus + grav_bonus
+    yx = to_plane(relative_position)
+    yx2 = to_plane(current_position)
 
+    horizontal_angle = math.atan2(current_position.z, current_position.x)
+    try:
+        vertical_angle = angle_for_shot(g, v, yx2)
+    except ImpossibleShotError:
+        raise ImpossibleShotError("Impossible Shot (Last Second)")
+
+    if not azimuth_min_max[0] < angle_distance(initial_shot_horizontal_angle, horizontal_angle) < azimuth_min_max[1]:
+        raise ImpossibleShotError("Out of range horizontally")
+    if not elevation_min_max[0] < angle_distance(initial_shot_vertical_angle, vertical_angle) < elevation_min_max[1]:
+        raise ImpossibleShotError("Out of range vertically")
+
+    size_bonus = 2 * math.log2(2 * math.atan2(s, 2 * current_position.magnitude()) / math.pi) + 12
+
+    grav_bonus = - math.pow(24 * abs(angle_distance(math.atan2(*yx2), vertical_angle)) / math.pi, 2)
+
+    no_velocity_horizontal_angle = math.atan2(relative_position.z, relative_position.x)
+    try:
+        no_velocity_vertical_angle = angle_for_shot(g, v, yx)
+    except ImpossibleShotError:
+        vertical_bonus = -20
+    else:
+        vertical_bonus = -64 * abs(angle_distance(no_velocity_vertical_angle, vertical_angle)) / math.pi
+    horizontal_bonus = -64 * abs(angle_distance(no_velocity_horizontal_angle, horizontal_angle)) / math.pi
+
+    velocity_bonus = vertical_bonus + horizontal_bonus
+
+    return size_bonus, grav_bonus, velocity_bonus
 
 
 if __name__ == '__main__':
     print("start")
-    shot_difficulty(Aircraft(), Aircraft(position=Vector((50, 0, 0)), position_d=Vector((-40, 0, 0))), Vector((20, 0, 0)))
+    while True:
+        print(shot_difficulty(Aircraft(rotation=Vector((0, 45, 0)), position_d=Vector((50, 0, 0))), Aircraft(position=Vector((50, 0, 0)), position_d=Vector((0, 0, 0))),
+                              Vector((600, 0, 0)), (-1.39626, 1.39626), (-0.174533, 1.39626)))
