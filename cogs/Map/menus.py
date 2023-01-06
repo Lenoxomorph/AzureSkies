@@ -34,7 +34,9 @@ class Menu(discord.ui.View):
 class MainMenu(Menu):
     @discord.ui.button(label="Ship List", style=discord.ButtonStyle.blurple, custom_id='ships')
     async def ships_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.edit_message(view=ShipsMenu())
+        ships_menu = ShipsMenu()
+        ships_menu.add_item(discord.ui.Button(label="test"))
+        await interaction.response.edit_message(view=ships_menu)
 
     @discord.ui.button(label="Canvas Control", style=discord.ButtonStyle.grey, custom_id='canvas')
     async def canvas_button(self, interaction: discord.Interaction, button: discord.ui.Button):
