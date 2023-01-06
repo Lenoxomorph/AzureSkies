@@ -109,10 +109,10 @@ def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector, azimuth_min_m
     try:
         no_velocity_vertical_angle = angle_for_shot(g, v, yx)
     except ImpossibleShotError:
-        vertical_bonus = -20
+        vertical_bonus = -10
     else:
-        vertical_bonus = -64 * abs(angle_distance(no_velocity_vertical_angle, vertical_angle)) / math.pi
-    horizontal_bonus = -64 * abs(angle_distance(no_velocity_horizontal_angle, horizontal_angle)) / math.pi
+        vertical_bonus = -32 * abs(angle_distance(no_velocity_vertical_angle, vertical_angle)) / math.pi
+    horizontal_bonus = -32 * abs(angle_distance(no_velocity_horizontal_angle, horizontal_angle)) / math.pi
 
     velocity_bonus = vertical_bonus + horizontal_bonus
 
