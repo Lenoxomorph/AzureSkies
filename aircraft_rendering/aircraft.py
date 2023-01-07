@@ -122,5 +122,5 @@ def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector, azimuth_min_m
 if __name__ == '__main__':
     print("start")
     while True:
-        print(shot_difficulty(Aircraft(rotation=Vector((0, 45, 0)), position_d=Vector((50, 0, 0))), Aircraft(position=Vector((50, 0, 0)), position_d=Vector((0, 0, 0))),
+        print(shot_difficulty(Aircraft(rotation=Vector((0, -45, 0)), position_d=Vector((50, 0, 0))), Aircraft(position=Vector((50, 0, 0)), position_d=Vector((0, 0, 50))),
                               Vector((600, 0, 0)), (-1.39626, 1.39626), (-0.174533, 1.39626)))
