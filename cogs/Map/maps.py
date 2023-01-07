@@ -10,13 +10,14 @@ from aircraft_rendering.aircraft import Aircraft
 from aircraft_rendering.physics import Vector
 from aircraft_rendering.visuals import ActiveImage
 
+import cv2 as cv
 
 class Maps:
     def __init__(self, message_id, pxl_per_ft: float = 1.6, camera_coords: Tuple[float] = (0, 0, 0),
                  angle_from_north: float = 0):
         self.message_id = message_id
         self.canvases = [Canvas(f"./db/images/airship_bg_{x}.png", bool(x)) for x in range(2)]
-        self.aircrafts = [Aircraft(), Aircraft(position=Vector((0, 30, 10)))]
+        self.aircrafts = [Aircraft(rotation=Vector((0, 0, 135))), Aircraft(position=Vector((0, 300, 100)))]
 
         self.pxl_per_ft = pxl_per_ft
         self.camera_coords = camera_coords
@@ -53,7 +54,8 @@ class Canvas:
     def render(self, aircrafts: List[Aircraft], maps: Maps):
         canvas_image = self.background.image().copy()
 
-        for aircraft in sorted(aircrafts, key=lambda a: a.transform_rb.position.comps[self.is_side + 1], reverse=self.is_side):
+        for aircraft in sorted(aircrafts, key=lambda a: a.transform_rb.position.comps[self.is_side + 1],
+                               reverse=self.is_side):
             if self.is_side:
                 aircraft_image = aircraft.side_image.image().copy()
                 if 90 < aircraft.transform_rb.rotation.comps[2] % 360 < 270:
@@ -82,6 +84,10 @@ class Canvas:
             coords = numpy.multiply(coords, maps.pxl_per_ft)
             coords = numpy.add(coords, (canvas_image.width / 2, canvas_image.height / 2))
 
+            # print(coords)
+            # if not (0 <= coords[0] <= canvas_image.width and 0 <= coords[1] <= canvas_image.height):
+
+
             coords = numpy.add(coords, (-aircraft_image.width / 2, -aircraft_image.height / 2))
             canvas_image.paste(im=aircraft_image, box=[int(x) for x in coords], mask=aircraft_image)
         return canvas_image
@@ -92,8 +98,13 @@ class Canvas:
 
     # Int code - [int(x) for x in coords]
 
-    def draw_component(self, image: Image.Image, width: float, coords: Tuple[float] = (0, 0), rotation: float = 0):
+    def draw_component(self, canvas: Image.Image, image: Image.Image, width: float, coords: Tuple[float] = (0, 0), rotation: float = 0):
         pass
 
-    def draw_arrow(self, start: tuple, end: tuple, rgb: tuple):
+    def draw_arrow(self, canvas: Image.Image, start: tuple, end: tuple, rgb: tuple):
         pass
+        pil_image = Image.open('Image.jpg').convert('RGB')
+        open_cv_image = numpy.array(pil_image)
+        # Convert RGB to BGR
+        open_cv_image = open_cv_image[:, :, ::-1].copy()
+

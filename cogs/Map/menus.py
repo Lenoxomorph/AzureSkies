@@ -38,13 +38,13 @@ class MainMenu(Menu):
         ships_menu.add_item(discord.ui.Button(label="test"))
         await interaction.response.edit_message(view=ships_menu)
 
-    @discord.ui.button(label="Canvas Control", style=discord.ButtonStyle.grey, custom_id='canvas')
-    async def canvas_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.edit_message(view=CanvasMenu())
-
     @discord.ui.button(label="Admin Control", style=discord.ButtonStyle.grey, custom_id='admin')
     async def admin_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(view=AdminMenu())
+
+    @discord.ui.button(label="Canvas Control", style=discord.ButtonStyle.grey, custom_id='canvas')
+    async def canvas_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.edit_message(view=CanvasMenu())
 
 
 class ChildMenu(Menu):
