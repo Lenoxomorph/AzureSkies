@@ -4,8 +4,6 @@ import os
 import discord
 from discord.ext import commands
 
-from aircraft_rendering.aircraft import Aircraft
-from aircraft_rendering.physics import Vector
 from cogs.Map.menus import MainMenu, CanvasMenu, ZoomMenu, PanMenu, AdminMenu
 from utils import config
 from utils import csvUtils
