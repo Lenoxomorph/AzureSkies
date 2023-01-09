@@ -81,7 +81,7 @@ async def on_resumed():
 
 @bot.event
 async def on_command_error(ctx, error):
-    await on_error(ctx, error)
+    await on_error(ctx.send, error)
 
 
 async def main():
