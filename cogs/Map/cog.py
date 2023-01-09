@@ -20,6 +20,8 @@ class Ship(commands.Cog):
         message = await ctx.send(embeds=embeds)
         maps = Maps(message.id, 0)
 
+        maps.update()
+
         await message.add_files(*maps.render_files())
         maps.save()
 
