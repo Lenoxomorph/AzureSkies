@@ -7,21 +7,22 @@ from .visuals import ActiveImage
 
 class Aircraft:
     def __init__(self, **kwargs):
-        self.transform_rb = TransformRB(**kwargs)
-        self.top_image = ActiveImage("./db/images/airship_top.png")
-        self.side_image = ActiveImage("./db/images/airship_side.png")
-        self.ship_length = 100
+        self.transform_rb: TransformRB = TransformRB(**kwargs)
+        self.top_image: ActiveImage = ActiveImage("./db/images/airship_top.png")
+        self.side_image: ActiveImage = ActiveImage("./db/images/airship_side.png")
+        self.image_length: int = 100
+        self.ship_length: int = 70
 
 
 class PropABC:
     def __init__(self):
-        self.percent = 0
+        self.percent: float = 0.0
 
 
 class Thruster(PropABC):
     def __init__(self, vector):
         super().__init__()
-        self.vector = vector
+        self.vector: Vector = vector
 
 
 class Rotator(PropABC):
