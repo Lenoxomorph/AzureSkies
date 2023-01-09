@@ -56,8 +56,7 @@ class Vector:
 
 
 class TransformRB:
-    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector(), rotation=Vector(), gravity=-32,
-                 position_d=Vector()):
+    def __init__(self, mass: float, drag_profiles: Vector, position: Vector, position_d: Vector, rotation: Vector, gravity=-32):
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
@@ -65,8 +64,7 @@ class TransformRB:
         self.gravity = gravity
         self.position_d = position_d
 
-    def update(self, altitude: float, force=Vector(), relative_force=Vector(), wind_velocity=Vector(),
-               rotation=Vector()):
+    def update(self, altitude: float, force: Vector, relative_force: Vector, wind_velocity: Vector, rotation: Vector):
         force.multiply(1 / self.mass).add(Vector((0, self.gravity, 0)))
         relative_force.multiply(1 / self.mass)
         interval = 1 / INTERVAL_RATE
