@@ -18,7 +18,7 @@ class Ship(commands.Cog):
                   discord.Embed().set_image(url="attachment://map1.png"))
 
         message = await ctx.send(embeds=embeds)
-        maps = Maps(message.id)
+        maps = Maps(message.id, 0)
 
         await message.add_files(*maps.render_files())
         maps.save()

@@ -4,7 +4,7 @@ import os
 import discord
 from discord.ext import commands
 
-from cogs.Map.menus import MainMenu, CanvasMenu, ZoomMenu, PanMenu
+from cogs.Map.menus import MainMenu, CanvasMenu, ZoomMenu, PanMenu, AdminMenu
 from utils import config
 from utils import csvUtils
 from utils.errors import on_error
@@ -13,7 +13,7 @@ from utils.errors import on_error
 
 # TODO Weather, Altitude, Heading, Travel Speeds,
 
-menus = [MainMenu, CanvasMenu, ZoomMenu, PanMenu]
+menus = [MainMenu, CanvasMenu, ZoomMenu, PanMenu, AdminMenu]
 
 
 async def get_prefix(the_bot, message):
