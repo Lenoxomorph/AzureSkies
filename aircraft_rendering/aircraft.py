@@ -64,8 +64,6 @@ def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector, azimuth_min_m
 
     i_time = 0
 
-    t = 0
-
     while True:
         yx = to_plane(current_position)
         try:
