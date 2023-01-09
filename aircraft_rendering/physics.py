@@ -56,8 +56,8 @@ class Vector:
 
 
 class TransformRB:
-    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector(), rotation=Vector(), gravity=-32,
-                 position_d=Vector()):
+    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector((0, 0, 0)), rotation=Vector(), gravity=-32,
+                 position_d=Vector((0, 0, 0))):
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
@@ -65,14 +65,28 @@ class TransformRB:
         self.gravity = gravity
         self.position_d = position_d
 
-    def update(self, force=Vector(), relative_force=Vector(), wind_velocity=Vector(), rotation=Vector()):
+    def update(self, altitude: float, force=Vector(), relative_force=Vector(), wind_velocity=Vector(),
+               rotation=Vector()):
         force.multiply(1 / self.mass).add(Vector((0, self.gravity, 0)))
         relative_force.multiply(1 / self.mass)
         interval = 1 / INTERVAL_RATE
         for i in range(int(INTERVAL_RATE)):
             self.rotation.add(Vector(rotation).multiply(interval))
             a_drag = Vector(self.position_d).add(Vector(wind_velocity).negate()).square().inverse_rotation(
-                self.rotation).dot(self.drag_profiles).rotate(self.rotation).multiply(0.0765 / self.mass)
+                self.rotation).dot(self.drag_profiles).rotate(self.rotation).multiply(
+                 air_density(altitude + self.position.y) / self.mass)
             a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
             self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
             self.position_d.add(Vector(a).multiply(interval))
+        pass
+
+
+def air_density(altitude: float):
+    try:
+        return 0.0764743 * math.pow(1 - 0.00002255691 * altitude, 4.2561)
+    except:
+        pass
+
+
+if __name__ == '__main__':
+    print(air_density(11000))
