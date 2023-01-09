@@ -5,6 +5,7 @@ from typing import Tuple, List
 import discord
 import numpy
 from PIL import Image
+import cv2
 
 from aircraft_rendering.aircraft import Aircraft
 from aircraft_rendering.physics import Vector
@@ -104,9 +105,7 @@ class Canvas:
                        rotation: float = 0):
         pass
 
-    def draw_arrow(self, canvas: Image.Image, start: tuple, end: tuple, rgb: tuple):
-        pass
-        pil_image = Image.open('Image.jpg').convert('RGB')
-        open_cv_image = numpy.array(pil_image)
-        # Convert RGB to BGR
-        open_cv_image = open_cv_image[:, :, ::-1].copy()
+    @staticmethod
+    def draw_arrow(canvas: Image.Image, start: tuple, end: tuple, rgba: tuple):
+        # noinspection PyTypeChecker
+        return Image.fromarray(cv2.arrowedLine(numpy.array(canvas), start, end, rgba, 8)).show()
