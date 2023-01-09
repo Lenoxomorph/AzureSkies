@@ -110,4 +110,3 @@ class Canvas:
         open_cv_image = numpy.array(pil_image)
         # Convert RGB to BGR
         open_cv_image = open_cv_image[:, :, ::-1].copy()
-
