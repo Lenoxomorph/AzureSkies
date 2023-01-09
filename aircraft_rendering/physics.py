@@ -56,8 +56,8 @@ class Vector:
 
 
 class TransformRB:
-    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector((0, 0, 0)), rotation=Vector(), gravity=-32,
-                 position_d=Vector((0, 0, 0))):
+    def __init__(self, mass=1, drag_profiles=Vector(), position=Vector(), rotation=Vector(), gravity=-32,
+                 position_d=Vector()):
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
