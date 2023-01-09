@@ -132,7 +132,7 @@ class PanMenu(ChildMenu):
         maps = open_maps(interaction)
 
         temp_coords = list(maps.camera_coords)
-        temp_coords[axis_num] += (positive_negative*2-1)*(180/maps.pxl_per_ft)
+        temp_coords[axis_num] += (positive_negative * 2 - 1) * (180 / maps.pxl_per_ft)
 
         maps.camera_coords = tuple(temp_coords)
         maps.save()
@@ -149,3 +149,12 @@ class LockedMenu(ChildMenu):
 class AdminMenu(LockedMenu):
     def __init__(self):
         super().__init__(MainMenu)
+
+    @discord.ui.button(label="Update", style=discord.ButtonStyle.grey, custom_id='update')
+    async def update_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        maps = open_maps(interaction)
+
+        maps.update()
+        maps.save()
+
+        await update_map(interaction)
