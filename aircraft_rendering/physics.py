@@ -56,7 +56,8 @@ class Vector:
 
 
 class TransformRB:
-    def __init__(self, mass: float, drag_profiles: Vector, position: Vector, position_d: Vector, rotation: Vector, gravity=-32):
+    def __init__(self, mass: float, drag_profiles: Vector, position: Vector, position_d: Vector, rotation: Vector,
+                 gravity=-32):
         self.mass = mass
         self.drag_profiles = drag_profiles
         self.position = position
@@ -70,20 +71,22 @@ class TransformRB:
         interval = 1 / INTERVAL_RATE
         for i in range(int(INTERVAL_RATE)):
             self.rotation.add(Vector(rotation).multiply(interval))
-            a_drag = Vector(self.position_d).add(Vector(wind_velocity).negate()).square().inverse_rotation(
-                self.rotation).dot(self.drag_profiles).rotate(self.rotation).multiply(
-                 air_density(altitude + self.position.y) / self.mass)
-            a = Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(a_drag.negate())
+            a = self.position_dd(altitude, force, relative_force, wind_velocity)
             self.position.add(Vector(a).multiply(0.5 * (interval ** 2))).add(Vector(self.position_d).multiply(interval))
             self.position_d.add(Vector(a).multiply(interval))
-        pass
+
+    def position_dd(self, altitude: float, force: Vector, relative_force: Vector, wind_velocity: Vector):
+        return Vector(force).add(Vector(relative_force).rotate(self.rotation)).add(
+            self.air_drag(altitude, wind_velocity))
+
+    def air_drag(self, altitude: float, wind_velocity: Vector):
+        return Vector(self.position_d).add(Vector(wind_velocity).negate()).square().inverse_rotation(
+            self.rotation).dot(self.drag_profiles).rotate(self.rotation).multiply(
+            air_density(altitude + self.position.y) / self.mass).negate()
 
 
 def air_density(altitude: float):
-    try:
-        return 0.0764743 * math.pow(1 - 0.00002255691 * altitude, 4.2561)
-    except:
-        pass
+    return 0.0764743 * math.pow(1 - 0.00002255691 * altitude, 4.2561)
 
 
 if __name__ == '__main__':

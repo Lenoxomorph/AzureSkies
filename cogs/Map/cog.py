@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+from aircraft_rendering.physics import Vector
 from utils.functions import try_delete
 from .maps import Maps
 from .menus import MainMenu
@@ -18,9 +19,7 @@ class Ship(commands.Cog):
                   discord.Embed().set_image(url="attachment://map1.png"))
 
         message = await ctx.send(embeds=embeds)
-        maps = Maps(message.id, 0)
-
-        maps.update()
+        maps = Maps(message.id, 0, Vector((0, 0, 0)))
 
         await message.add_files(*maps.render_files())
         maps.save()

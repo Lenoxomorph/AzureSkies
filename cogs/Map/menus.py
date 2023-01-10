@@ -131,10 +131,10 @@ class PanMenu(ChildMenu):
     async def pan(interaction: discord.Interaction, axis_num: int, positive_negative: bool):
         maps = open_maps(interaction)
 
-        temp_coords = list(maps.camera_coords)
+        temp_coords = list(maps.camera_coords.comps)
         temp_coords[axis_num] += (positive_negative * 2 - 1) * (180 / maps.pxl_per_ft)
 
-        maps.camera_coords = tuple(temp_coords)
+        maps.camera_coords.comps = temp_coords
         maps.save()
         await update_map(interaction, maps)
 

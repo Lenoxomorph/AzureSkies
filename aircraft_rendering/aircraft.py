@@ -1,7 +1,9 @@
 import math
 
-from .physics import TransformRB, Vector
+from PIL import Image
+
 from utils.errors import ImpossibleShotError
+from .physics import TransformRB, Vector
 from .visuals import ActiveImage
 
 
@@ -12,6 +14,15 @@ class Aircraft:
         self.side_image: ActiveImage = ActiveImage("./db/images/airship_side.png")
         self.image_length: int = 100
         self.ship_length: int = 70
+
+    def render(self, is_side):
+        if is_side:
+            aircraft_image = self.side_image.image().copy()
+            if 90 < self.transform_rb.rotation.comps[2] % 360 < 270:
+                aircraft_image = aircraft_image.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+        else:
+            aircraft_image = self.top_image.image().copy()
+        return aircraft_image
 
 
 class PropABC:
@@ -121,5 +132,6 @@ def shot_difficulty(a: Aircraft, b: Aircraft, shot_vector: Vector, azimuth_min_m
 if __name__ == '__main__':
     print("start")
     while True:
-        print(shot_difficulty(Aircraft(rotation=Vector((0, -45, 0)), position_d=Vector((50, 0, 0))), Aircraft(position=Vector((50, 0, 0)), position_d=Vector((0, 0, 50))),
+        print(shot_difficulty(Aircraft(rotation=Vector((0, -45, 0)), position_d=Vector((50, 0, 0))),
+                              Aircraft(position=Vector((50, 0, 0)), position_d=Vector((0, 0, 50))),
                               Vector((600, 0, 0)), (-1.39626, 1.39626), (-0.174533, 1.39626)))
