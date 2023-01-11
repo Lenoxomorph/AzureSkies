@@ -55,6 +55,8 @@ class Maps:
 
 
 class Canvas:
+    margin = 10
+
     def __init__(self, path: str, is_side: bool):
         self.background = ActiveImage(path)
         self.canvas = None
@@ -70,6 +72,8 @@ class Canvas:
 
             coords = self.draw_component(aircraft.render(self.is_side), maps, aircraft.image_length,
                                          aircraft.transform_rb.position, angle)
+
+            self.arrow_coords(coords[0], coords[1], self.canvas.width, self.canvas.height)
 
             # print(coords)
             # if not (0 <= coords[0] <= canvas_image.width and 0 <= coords[1] <= canvas_image.height):
@@ -118,3 +122,24 @@ class Canvas:
     @staticmethod
     def float_tuple_to_int(t: Tuple[float]):
         return int(t[0]), int(t[1])
+
+    @staticmethod
+    def weird_division(n, d):
+        return n / d if d else 0
+
+    @staticmethod
+    def arrow_points(x, y, h, w) -> Tuple[Tuple[float]]:
+        n = y - h
+        d = x - w
+
+        slope = Canvas.weird_division(n, d)
+        slope_inv = Canvas.weird_division(d, n)
+
+        if (y > x / 2) != (y > -x / 2 + h):
+            if x < 0:
+                x1 = Canvas.margin
+            elif x > w:
+                x1 = w - Canvas.margin
+            else:
+                return None
+            return (x1, slope*(x1-x)+y)
